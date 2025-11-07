@@ -41,6 +41,123 @@ const cardVariant = {
   visible: (i) => ({ opacity: 1, y: 0, transition: { delay: 0.1 * i, duration: 0.5 } }),
 };
 
+function AnimatedOverlay(props) {
+  const { type } = props;
+  // Lightweight overlays to hint the motion of each phenomenon
+  if (type === 'volcano') {
+    return (
+      <div className="pointer-events-none absolute inset-0">
+        {/* Rising lava sparks */}
+        {[...Array(10)].map((_, i) => {
+          const delay = i * 0.2;
+          const x = 50 + (i - 5) * 6;
+          const size = 3 + (i % 3);
+          return (
+            <motion.span
+              key={i}
+              className="absolute bottom-2 left-1/2 h-1 w-1 rounded-full"
+              style={{ background: 'linear-gradient(180deg,#ff7a18,#ff3d00)', x: x - 50, width: size, height: size }}
+              initial={{ y: 0, opacity: 0 }}
+              animate={{ y: -90 - i * 6, opacity: [0, 1, 0] }}
+              transition={{ repeat: Infinity, repeatType: 'loop', duration: 2.6, ease: 'easeOut', delay }}
+            />
+          );
+        })}
+        {/* Soft glow near crater */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-10 w-24 rounded-full blur-2xl" style={{ background: 'radial-gradient(closest-side, rgba(255,120,32,0.5), transparent)' }} />
+      </div>
+    );
+  }
+
+  if (type === 'tornado') {
+    return (
+      <div className="pointer-events-none absolute inset-0">
+        {/* Rotating funnel lines */}
+        <motion.div
+          className="absolute left-1/2 top-6 h-28 w-28 -translate-x-1/2"
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
+        >
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute left-1/2 -translate-x-1/2 rounded-full border border-white/30"
+              style={{ width: 100 - i * 12, height: 14 + i * 10, top: 4 + i * 4, opacity: 0.35 }}
+            />
+          ))}
+        </motion.div>
+        {/* Swirling dust */}
+        {[...Array(8)].map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute bottom-4 h-1 w-1 rounded-full bg-white/60"
+            style={{ left: `${15 + i * 10}%` }}
+            initial={{ y: 0, opacity: 0 }}
+            animate={{ y: -40 - (i % 3) * 10, opacity: [0, 1, 0] }}
+            transition={{ repeat: Infinity, duration: 2 + (i % 3), delay: i * 0.15 }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (type === 'flood') {
+    return (
+      <div className="pointer-events-none absolute inset-0">
+        {/* Moving waves */}
+        <motion.svg
+          className="absolute bottom-0 left-0 h-16 w-[140%]"
+          viewBox="0 0 100 20"
+          initial={{ x: 0 }}
+          animate={{ x: ['0%', '-40%'] }}
+          transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
+          preserveAspectRatio="none"
+        >
+          <path d="M0 10 Q 10 0 20 10 T 40 10 T 60 10 T 80 10 T 100 10" fill="none" stroke="rgba(86,180,255,0.8)" strokeWidth="2.5" />
+          <path d="M0 14 Q 10 4 20 14 T 40 14 T 60 14 T 80 14 T 100 14" fill="none" stroke="rgba(56,150,255,0.6)" strokeWidth="3" />
+          <path d="M0 18 Q 10 8 20 18 T 40 18 T 60 18 T 80 18 T 100 18" fill="none" stroke="rgba(26,120,255,0.5)" strokeWidth="3.5" />
+        </motion.svg>
+        {/* Floating debris dots */}
+        {[...Array(6)].map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute bottom-8 h-1.5 w-1.5 rounded-full bg-white/70"
+            style={{ left: `${10 + i * 14}%` }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ repeat: Infinity, duration: 2 + (i % 3), delay: i * 0.2 }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (type === 'avalanche') {
+    return (
+      <div className="pointer-events-none absolute inset-0">
+        {/* Sliding snow chunks */}
+        {[...Array(8)].map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute h-2 w-3 rounded-sm bg-white/90 shadow"
+            style={{ left: `${5 + i * 12}%`, top: `${-10 + i * 2}%` }}
+            initial={{ x: -10, y: -10, opacity: 0 }}
+            animate={{ x: 40 + (i % 3) * 10, y: 50 + i * 4, opacity: [0, 1, 0.2] }}
+            transition={{ repeat: Infinity, duration: 3 + (i % 3), delay: i * 0.15, ease: 'easeIn' }}
+          />
+        ))}
+        {/* Misty puff */}
+        <motion.div
+          className="absolute bottom-2 left-2 h-8 w-16 rounded-full bg-white/40 blur-md"
+          animate={{ opacity: [0.2, 0.6, 0.2] }}
+          transition={{ repeat: Infinity, duration: 2.4 }}
+        />
+      </div>
+    );
+  }
+
+  return null;
+}
+
 const PhenomenaGrid = () => {
   return (
     <section id="phenomena" className="relative bg-neutral-950 py-16 text-white">
@@ -68,6 +185,7 @@ const PhenomenaGrid = () => {
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
+                <AnimatedOverlay type={it.key} />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                 <figcaption className="pointer-events-none absolute bottom-2 left-3 rounded-full bg-black/40 px-2 py-1 text-[11px] uppercase tracking-wide text-white/80">
                   {it.title}
